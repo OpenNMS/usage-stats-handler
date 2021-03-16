@@ -6,8 +6,8 @@
   "dependencies": {
     "commander": "^2.7.1",
     "graphite": "0.0.6",
-    "lodash": "^3.5.0",
-    "restify": "^3.0.1",
+    "lodash": "^4.17.21",
+    "restify": "^8.5.1",
     "save": "^2.1.0"
   },
   "devDependencies": {},
