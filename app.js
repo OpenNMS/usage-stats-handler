@@ -4,8 +4,8 @@ var restify = require('restify');
 var server = restify.createServer({name: 'opennms-stats'});
 
 server
-  .use(restify.fullResponse())
-  .use(restify.bodyParser());
+  .use(restify.plugins.fullResponse())
+  .use(restify.plugins.bodyParser());
 
 server.get('/ping', function (req, res, next) {
   res.send({message: 'ok'});
