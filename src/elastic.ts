@@ -1,6 +1,6 @@
 import {Httpclient} from "./httpclient";
 import _ from "lodash";
-import {AxiosAdapter, AxiosResponse} from "axios";
+import {AxiosResponse} from "axios";
 
 export class Elastic {
     private httpclient: Httpclient = new Httpclient();
@@ -18,7 +18,7 @@ export class Elastic {
 
     public init() {
         this.updateLogIndex();
-        //this.updateSystemIndex();
+        this.updateSystemIndex();
     }
 
     private updateLogIndex() {

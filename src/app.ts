@@ -16,6 +16,8 @@ elastic.init();
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     res.writeHead(500, headers);
     res.end("");
+    next();
+
 }
 app.use(errorHandler);
 
@@ -28,8 +30,13 @@ app.post("/usage-report", async (req, res) => {
     let report = req.body;
     console.log("Report received: ", report);
     elastic.saveReport(report).then(response => {
-        res.writeHead(200, headers);
-        res.end();
+        if(response.status == 200) {
+            res.writeHead(200, headers);
+            res.end();
+        } else {
+            res.writeHead(500, headers);
+            res.end(`{${response.data}`)
+        }
     }).catch(reason => {
         console.log("failed post report", reason);
         res.writeHead(500, headers);
