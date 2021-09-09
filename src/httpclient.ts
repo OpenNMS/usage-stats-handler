@@ -1,7 +1,6 @@
 import axios, {AxiosResponse} from "axios";
 
 export class Httpclient {
-
     private axiosInstance = axios.create({
         baseURL: "http://localhost:9200",
         headers: {
@@ -15,5 +14,9 @@ export class Httpclient {
 
     public put (path: string, data: any): Promise<AxiosResponse> {
         return this.axiosInstance.put(path, data);
+    }
+
+    public get(path: string): Promise<AxiosResponse> {
+        return this.axiosInstance.get(path);
     }
 }

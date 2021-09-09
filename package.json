@@ -5,7 +5,6 @@
   "main": "dist/app.js",
   "dependencies": {
     "axios": "^0.21.4",
-    "commander": "^2.7.1",
     "express": "^4.17.1",
     "lodash": "^4.17.21"
   },
@@ -17,9 +16,7 @@
     "typescript": "^4.4.2"
   },
   "scripts": {
-    "dev": "tsc && node dist/app.js",
-    "start": "node app.js",
-    "build": "tsc -p .",
+    "start": "tsc -p . && node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jesse White <jesse@opennms.org>",
