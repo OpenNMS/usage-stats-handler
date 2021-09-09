@@ -73,7 +73,7 @@ export class Elastic {
             }
         };
         try {
-            const response: AxiosResponse = await this.httpclient.put("/opennms_log_v1", data);
+            await this.httpclient.put("/opennms_log_v1", data);
             console.log("Opennms log index created.");
             const aliasData = {
                 "actions": [
@@ -113,7 +113,7 @@ export class Elastic {
             }
         };
         try {
-            const response: AxiosResponse = await this.httpclient.put("/opennms_system_v1", data);
+            await this.httpclient.put("/opennms_system_v1", data);
             console.log("System index was created")
             const aliasData = {
                 "actions": [
