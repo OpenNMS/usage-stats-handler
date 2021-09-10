@@ -63,7 +63,7 @@ export class Elastic {
                         "strings": {
                             "match_mapping_type": "string",
                             "mapping": {
-                                "type": "text",
+                                "type": "keyword",
                                 "norms": false
                             }
                         }
@@ -104,7 +104,7 @@ export class Elastic {
                         "strings": {
                             "match_mapping_type": "string",
                             "mapping": {
-                                "type": "text",
+                                "type": "keyword",
                                 "norms": false
                             }
                         }
