@@ -1,0 +1,56 @@
+version: '3.4'
+
+networks:
+  stats_network:
+    driver: bridge
+
+services:
+  usage_stats_handler:
+    container_name: usage_stats_handler
+    build: .
+    ports:
+      - "3542:3542"
+    environment:
+      - ELASTIC_BASE_URL=http://elasticsearch:9200
+    restart: on-failure
+    depends_on:
+      - elasticsearch
+    networks:
+      stats_network:
+  elasticsearch:
+    container_name: elasticsearch
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.6.2'
+    ports:
+      - "9200:9200"
+    environment:
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - bootstrap.system_call_filter=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    restart: on-failure
+    networks:
+      stats_network:
+  grafana:
+    container_name: grafana
+    image: 'grafana/grafana:8.5.3'
+    volumes:
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - elasticsearch
+    restart: on-failure
+    networks:
+      stats_network:
