@@ -37,6 +37,8 @@ services:
         hard: 65536
     cap_add:
       - IPC_LOCK
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
     restart: on-failure
     networks:
       stats_network:
@@ -54,3 +56,7 @@ services:
     restart: on-failure
     networks:
       stats_network:
+
+volumes:
+  elasticsearch-data:
+    driver: local
