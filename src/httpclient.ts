@@ -1,18 +1,28 @@
-import axios, {AxiosResponse} from "axios";
+import axios, {AxiosInstance, AxiosResponse} from "axios";
+import axiosRetry from 'axios-retry';
 
 export class Httpclient {
-    private axiosInstance = axios.create({
-        baseURL: "http://localhost:9200",
-        headers: {
-            "Content-type": "application/json"
-        }
-    });
+    private axiosInstance: AxiosInstance;
+
+    constructor(baseUrl: string) {
+        this.axiosInstance = axios.create({
+            baseURL: baseUrl,
+            headers: {
+                "Content-type": "application/json"
+            }
+        });
+        axiosRetry(this.axiosInstance, {
+            retries: 100,
+            retryDelay: () => 5000,
+            retryCondition: () => true,
+        });
+    }
 
     public post(path: string, data: any): Promise<AxiosResponse> {
         return this.axiosInstance.post(path, data);
     }
 
-    public put (path: string, data: any): Promise<AxiosResponse> {
+    public put(path: string, data: any): Promise<AxiosResponse> {
         return this.axiosInstance.put(path, data);
     }
 

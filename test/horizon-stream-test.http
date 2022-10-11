@@ -1,0 +1,9 @@
+POST http://localhost:3542/hs-usage-report
+Content-Type: application/json
+
+{
+  "systemId": "79292f4f-1231-4f08-8fa9-c3eb22bdcf71",
+  "version": "1.0.0"
+}
+
+###
