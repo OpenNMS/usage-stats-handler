@@ -28,12 +28,13 @@ export class Elastic {
 
     public async saveReport(reportName: string, report: any) {
         report["@timestamp"] = new Date().getTime();
-        let nodesSySysOid: any = {};
-        _.each(report["nodesBySysOid"], (number, oid) => {
-            const newID = oid.replace(/\./g, '_');
-            nodesSySysOid[newID] = number;
+        let allNodesBySysOid = Object.entries(report["nodesBySysOid"]).map(([key, value]) => {
+            return { "oid": key, "value": value };
         });
-        report["nodesBySysOid"] = nodesSySysOid;
+    
+        report["AllNodesBySysOid"] = allNodesBySysOid;
+        delete report["nodesBySysOid"];
+
         try {
             await this.httpclient.post(`/${reportName}${Elastic.LOG_SUFFIX}/_doc`, report);
             console.log(`Successfully saved report to log index for report: ${reportName}`);
