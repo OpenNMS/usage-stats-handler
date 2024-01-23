@@ -4,8 +4,8 @@
   "description": "",
   "main": "dist/app.js",
   "dependencies": {
-    "axios": "^0.21.4",
-    "axios-retry": "^3.3.1",
+    "axios": "^1.6.5",
+    "axios-retry": "^4.0.0",
     "express": "^4.17.1",
     "lodash": "^4.17.21"
   },
@@ -14,7 +14,7 @@
     "@types/lodash": "^4.14.172",
     "@types/node": "^16.7.10",
     "tslint": "^6.1.3",
-    "typescript": "^4.4.2"
+    "typescript": "^5.3.3"
   },
   "scripts": {
     "start": "tsc -p . && node dist/app.js",
