@@ -25,7 +25,7 @@ app.get("/ping", async (request, response) => {
 });
 
 app.post("/usage-report", async (req, res) => {
-    let report = req.body;
+    const report = req.body;
     console.log("Report opennms received: ", report);
     await elastic.saveReport(Elastic.OPENNMS_REPORT_NAME, report);
     res.writeHead(200, headers);
@@ -33,7 +33,7 @@ app.post("/usage-report", async (req, res) => {
 });
 
 app.post("/hs-usage-report", async (req, res) => {
-    let report = req.body;
+    const report = req.body;
     console.log("Report horizon stream received: ", report);
     await elastic.saveReport(Elastic.HORIZON_STREAM_REPORT_NAME, report);
     res.writeHead(200, headers);
