@@ -1,0 +1,9 @@
+{
+  "crmConfig": {
+    "crmBaseUrl": "",
+    "crmUrlPath": "",
+    "portalId": "",
+    "formGuid": "",
+    "subscriptionTypeId": ""
+  }
+}

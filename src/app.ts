@@ -1,6 +1,9 @@
-import express from "express";
-import type {ErrorRequestHandler} from "express";
-import {Elastic} from "./elastic";
+import express from 'express';
+import type { ErrorRequestHandler } from 'express';
+import { Elastic } from './elastic';
+import config from 'config'
+import { postCrmData, validateConfig } from './lib/userDataCollection/service';
+import { CrmConfig } from './lib/userDataCollection/types';
 
 const port = 3542;
 const app = express();
@@ -15,7 +18,6 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     res.writeHead(500, headers);
     res.end("");
     next();
-
 }
 app.use(errorHandler);
 
@@ -40,8 +42,34 @@ app.post("/hs-usage-report", async (req, res) => {
     res.end();
 });
 
+/**
+ * Receive user data from OpenNMS product (e.g. Horizon), send to CRM.
+ */
+app.post("/user-data-collection", async (req, res) => {
+    const crmConfig = config.get<CrmConfig>('crmConfig');
+
+    if (!validateConfig(crmConfig)) {
+      console.error('Invalid CRM configuration', crmConfig);
+      res.writeHead(500, headers);
+      res.end();
+    }
+
+    const data = req.body;
+    console.log("User data collection data received: ", data);
+
+    let statusCode = 200;
+
+    try {
+      await postCrmData(crmConfig, data);
+    } catch (e) {
+      console.error('Error received posting CRM data: ', e);
+      statusCode = 500;
+    }
+
+    res.writeHead(statusCode, headers);
+    res.end();
+});
+
 app.listen(port, () => {
     console.log(`server is listening on ${port}`);
 })
-
-
