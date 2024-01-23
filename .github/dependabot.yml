@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    target-branch: "master"
+    versioning-strategy: "increase-if-necessary"
+    reviewers:
+      - "rangerrick"
+      - "synqotik"
+    labels:
+      - "dependabot"
+    commit-message:
+      prefix: "build"
+      include: "scope"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "@types/node"
+
