@@ -48,6 +48,20 @@ curl -v -X POST --location "http://localhost:9200/opennms_system/_count?pretty"
 
 ## Running in the production environment
 
+Add a file `config/production.json` which is a copy of `config/default.json` but with actual production values populated.
+
+* Note: make sure not to check in `config/production.json` as it may contain credentials.
+
+Then:
+
 ```shell
-npm start  
+npm run start:prod
 ```
+
+If you are running this is in a different way (e.g. as part of a service), you can run `npm build-only` to build. Make sure to set the `NODE_ENV` environment variable to `production` (`export NODE_ENV=production`), then run the `dist/app.js` file:
+
+```shell
+export NODE_ENV=production
+node dist/app.js
+```
+

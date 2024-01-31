@@ -1,0 +1,14 @@
+POST http://localhost:3542/user-data-collection
+Content-Type: application/json
+
+{
+  "product": "Horizon",
+  "consent": true,
+  "firstName": "First",
+  "lastName": "Last",
+  "email": "someone@example.com",
+  "company": "OpenNMS Test",
+  "systemId": "444"
+}
+
+###
