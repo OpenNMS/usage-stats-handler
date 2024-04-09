@@ -8,7 +8,7 @@ updates:
       - "rangerrick"
       - "synqotik"
     labels:
-      - "dependabot"
+      - "dependencies"
     commit-message:
       prefix: "build"
       include: "scope"
