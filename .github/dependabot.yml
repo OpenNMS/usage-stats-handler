@@ -5,8 +5,7 @@ updates:
     target-branch: "master"
     versioning-strategy: "increase-if-necessary"
     reviewers:
-      - "rangerrick"
-      - "synqotik"
+      - "opennms/dependabot-reviewers-node"
     labels:
       - "dependencies"
     commit-message:
