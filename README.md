@@ -1,21 +1,24 @@
 # usage-stats-handler
 
+A node/express web app for handling REST requests for OpenNMS usage statistics and user data.
+
 ## How to test
 
-* Make sure the node.js installed on the system
+* Make sure that node.js is installed on the system
+* Currently should use npm version 10 or higher; node version 18 or higher
 * Change to the project folder and run the following command
 
 ```shell
 npm install
 ```
 
-* Start elastic search docker container first
+* Start elastic search docker container first (don't need this if you are only testing the `user-data-collection` feature)
 
 ```shell
 docker run -d -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.6.2
 ```
 
-* Run the following command to start the server
+* Run the following command to compile the code and start the server
 
 ```shell
 npm start
@@ -48,6 +51,28 @@ curl -v -X POST --location "http://localhost:9200/opennms_system/_count?pretty"
 
 ## Running in the production environment
 
+Add a file `config/production.json` which is a copy of `config/default.json` but with actual production values populated.
+
+* Note: make sure not to check in `config/production.json` as it may contain credentials.
+
+Then:
+
 ```shell
-npm start  
+npm run start:prod
 ```
+
+If you are running this in a different way (e.g. as part of a service), you can run `npm build-only` to build. Make sure to set the `NODE_ENV` environment variable to `production` (`export NODE_ENV=production`), and also set `NODE_CONFIG_DIR` to the `config` directory, then run the `dist/app.js` file:
+
+```shell
+export NODE_ENV=production
+export NODE_CONFIG_DIR=/opt/usage-stats-handler/config
+node dist/app.js
+```
+
+## REST endpoints
+
+- `GET /` Base URL, but there's actually nothing at that path, it will return a 404
+- `GET /ping` Get a basic ping response
+- `POST /usage-report` Send an OpenNMS Horizon usage report
+- `POST /hs-usage-report` Send an OpenNMS Horizon Stream usage report
+- `POST /user-data-collection` Submit user data collection data

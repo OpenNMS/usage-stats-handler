@@ -1,5 +1,4 @@
 import {Httpclient} from "./httpclient";
-import _ from "lodash";
 import {AxiosResponse} from "axios";
 
 export class Elastic {

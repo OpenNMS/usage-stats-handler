@@ -35,3 +35,7 @@ node_modules
 # WebStorm
 .idea
 dist
+
+# This file should NOT be checked in, it will be added in production
+# environments with credentials populated
+config/production.json

@@ -1,0 +1,9 @@
+{
+  "crmConfig": {
+    "crmBaseUrl": "http://localhost",
+    "crmUrlPath": "/crm",
+    "portalId": "123",
+    "formGuid": "abc",
+    "subscriptionTypeId": "111"
+  }
+}
