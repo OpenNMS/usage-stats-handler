@@ -54,4 +54,6 @@ export interface CrmConfig {
   portalId: string;
   formGuid: string;
   subscriptionTypeId: string;
+  crmPageName: string;
+  crmPageUri: string;
 }

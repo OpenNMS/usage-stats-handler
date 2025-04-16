@@ -1,4 +1,5 @@
 import {
+  CrmConfig,
   CrmDataField,
   CrmJsonData,
   FormContext,
@@ -11,15 +12,15 @@ const CONSENT_TEXT = 'I agree to receive email communications from OpenNMS';
 const LEGAL_CONSENT_COMMUNICATION_TEXT = 'If you consent to us contacting you, please opt in below. We will maintain your data until you request us to delete it from our systems. You may opt out of receiving communications from us at any time.';
 const CONTACT_OBJECT_ID = '0-1';
 
-export const parseCrmData = (formData: FormData, subscriptionTypeId: string): CrmJsonData => {
+export const parseCrmData = (formData: FormData, config: CrmConfig): CrmJsonData => {
   const context = {
-    pageName: 'OpenNMS Web Console',
-    pageUri: 'opennms/index.jsp'
+    pageName: `${config.crmPageName}`,
+    pageUri: `${config.crmPageUri}`
   } as FormContext;
 
   const communication = {
     value: true,
-    subscriptionTypeId,
+    subscriptionTypeId: `${config.subscriptionTypeId}`,
     text: LEGAL_CONSENT_COMMUNICATION_TEXT
   } as LegalConsentCommunication;
 
