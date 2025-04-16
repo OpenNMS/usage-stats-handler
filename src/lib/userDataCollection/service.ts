@@ -8,7 +8,7 @@ export const postCrmData = async (config: CrmConfig, data: FormData) => {
     throw new Error('Invalid form data');
   }  
 
-  const crmData: CrmJsonData = parseCrmData(data, config.subscriptionTypeId);
+  const crmData: CrmJsonData = parseCrmData(data, config);
   const client = new Httpclient(config.crmBaseUrl);
   const url = `${config.crmUrlPath}/${config.portalId}/${config.formGuid}`
 
@@ -43,7 +43,9 @@ export const validateConfig = (config?: CrmConfig): boolean => {
     !config.crmUrlPath ||
     !config.formGuid ||
     !config.portalId ||
-    !config.subscriptionTypeId) {
+    !config.subscriptionTypeId ||
+    !config.crmPageName ||
+    !config.crmPageUri) {
       return false;
     }
 
