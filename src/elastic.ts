@@ -37,7 +37,7 @@ export class Elastic {
         let allNodesWithDeviceConfigBySysOid = Object.entries(report["nodesWithDeviceConfigBySysOid"]).map(([key, value]) => {
             return { "oid": key, "value": value };
         });
-        report["AllNodesWithDeviceConfigBySysOid"] = allNodesBySysOid;
+        report["AllNodesWithDeviceConfigBySysOid"] = allNodesWithDeviceConfigBySysOid;
         delete report["nodesWithDeviceConfigBySysOid"];
 
         try {
