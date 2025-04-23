@@ -22,7 +22,8 @@
     "build-only": "tsc -p .",
     "start": "tsc -p . && node dist/app.js",
     "start:prod": "tsc -p . && export NODE_ENV=production && node dist/app.js",
-    "test": "tsc --noEmit --strict -p . && eslint ."
+    "test": "tsc --noEmit --strict -p .",
+    "test:lint": "tsc --noEmit --strict -p . && eslint ."
   },
   "author": "Jesse White <jesse@opennms.org>",
   "license": "APL 2.0"
