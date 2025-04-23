@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/app.js",
   "dependencies": {
-    "axios": "^1.6.5",
+    "axios": "^1.8.4",
     "axios-retry": "^4.0.0",
     "config": "^3.3.10",
     "express": "^4.21.2"
