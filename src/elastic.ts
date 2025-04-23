@@ -27,12 +27,18 @@ export class Elastic {
 
     public async saveReport(reportName: string, report: any) {
         report["@timestamp"] = new Date().getTime();
+        
         let allNodesBySysOid = Object.entries(report["nodesBySysOid"]).map(([key, value]) => {
             return { "oid": key, "value": value };
         });
-    
         report["AllNodesBySysOid"] = allNodesBySysOid;
         delete report["nodesBySysOid"];
+
+        let allNodesWithDeviceConfigBySysOid = Object.entries(report["nodesWithDeviceConfigBySysOid"]).map(([key, value]) => {
+            return { "oid": key, "value": value };
+        });
+        report["AllNodesWithDeviceConfigBySysOid"] = allNodesBySysOid;
+        delete report["nodesWithDeviceConfigBySysOid"];
 
         try {
             await this.httpclient.post(`/${reportName}${Elastic.LOG_SUFFIX}/_doc`, report);
