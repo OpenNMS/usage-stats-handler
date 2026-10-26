@@ -5,7 +5,9 @@ orbs:
 
 jobs:
   build-and-test:
-    executor: node/default
+    executor:
+      name: node/default
+      tag: '26'
     steps:
       - checkout
       - node/install-packages:

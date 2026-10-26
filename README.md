@@ -5,7 +5,7 @@ A node/express web app for handling REST requests for OpenNMS usage statistics a
 ## How to test
 
 * Make sure that node.js is installed on the system
-* Currently should use npm version 10 or higher; node version 18 or higher
+* Requires Node.js 26 or higher (see `.nvmrc`) and the npm version bundled with it
 * Change to the project folder and run the following command
 
 ```shell
