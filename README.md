@@ -69,6 +69,14 @@ psql postgres://usagestats:usagestats@localhost:5432/usagestats \
 | `system_latest` | View joining `system` to its latest `usage_report` row. |
 | `report_sys_oid_count` | The `nodesBySysOid` and `nodesWithDeviceConfigBySysOid` maps normalized to one row per report, kind and sysObjectID. |
 
+Unknown fields are expected. A report from a newer OpenNMS release that carries
+fields this service does not know about is stored in full in `raw`; only the
+listed columns are extracted, and a known field whose type changed (for example a
+counter that became an object) leaves its column `NULL` while `raw` keeps the value.
+The only edits made to a payload before storage are the removal of NUL characters
+and the replacement of unpaired UTF-16 surrogates, neither of which PostgreSQL can
+store. Integers outside the `bigint` range leave their column `NULL`.
+
 Fields that are not promoted are still queryable from `raw`, for example
 `raw->'services'` or `raw->>'databaseProductName'`. Promoting a field later is a
 migration that adds the column and backfills it from `raw`.

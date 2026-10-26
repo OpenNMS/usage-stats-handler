@@ -131,7 +131,7 @@ export class Store {
      */
     public async saveReport(report: unknown, receivedAt?: Date): Promise<SavedReport> {
         const systemId = Store.systemIdOf(report);
-        const payload = report as Record<string, unknown>;
+        const payload = Store.sanitize(report) as Record<string, unknown>;
 
         const columns: string[] = ['system_id', 'raw'];
         const values: unknown[] = [systemId, JSON.stringify(payload)];
@@ -163,7 +163,7 @@ export class Store {
         }
         const deviceConfigCounts = Store.asCountMap(payload['nodesWithDeviceConfigBySysOid']);
         add('nodes_with_device_config',
-            deviceConfigCounts === null ? null : [...deviceConfigCounts.values()].reduce((a, b) => a + b, 0));
+            deviceConfigCounts === null ? null : Store.asInteger([...deviceConfigCounts.values()].reduce((a, b) => a + b, 0)));
 
         const client = await this.pool.connect();
         try {
@@ -223,27 +223,82 @@ export class Store {
             throw new ReportValidationError('Report must be a JSON object');
         }
         const systemId = (report as Record<string, unknown>)['systemId'];
+        if (typeof systemId === 'number' && Number.isFinite(systemId)) {
+            return String(systemId);
+        }
         if (typeof systemId !== 'string' || systemId.trim() === '') {
             throw new ReportValidationError('Report is missing a systemId');
         }
-        return systemId;
+        return Store.sanitize(systemId) as string;
+    }
+
+    /**
+     * Returns a copy of the value that PostgreSQL will accept as jsonb and
+     * text: NUL characters are removed and unpaired UTF-16 surrogates are
+     * replaced with U+FFFD, in both strings and object keys. Everything else
+     * is passed through unchanged, so unknown fields of any shape survive.
+     */
+    private static sanitize(value: unknown): unknown {
+        if (typeof value === 'string') {
+            return Store.sanitizeString(value);
+        }
+        if (Array.isArray(value)) {
+            return value.map(v => Store.sanitize(v));
+        }
+        if (typeof value === 'object' && value !== null) {
+            // Null prototype so a key literally named "__proto__" (legal in
+            // JSON) is stored as an ordinary property instead of being lost.
+            const out: Record<string, unknown> = Object.create(null);
+            for (const [key, v] of Object.entries(value as Record<string, unknown>)) {
+                out[Store.sanitizeString(key)] = Store.sanitize(v);
+            }
+            return out;
+        }
+        return value;
+    }
+
+    private static sanitizeString(value: string): string {
+        if (!/[\u0000\uD800-\uDFFF]/.test(value)) {
+            return value;
+        }
+        return value
+            .replace(/\u0000/g, '')
+            .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '\uFFFD');
     }
 
     private static asText(value: unknown): string | null {
         if (value === null || value === undefined) {
             return null;
         }
-        return typeof value === 'string' ? value : String(value);
+        if (typeof value === 'string') {
+            return value;
+        }
+        return typeof value === 'object' ? JSON.stringify(value) : String(value);
     }
 
+    /**
+     * Coerces a value to an integer that fits a bigint column. Anything
+     * else (non-numeric, out of range) yields null; the original value is
+     * still present in the raw column.
+     */
     private static asInteger(value: unknown): number | null {
-        if (typeof value === 'number' && Number.isFinite(value)) {
-            return Math.trunc(value);
+        let n: number;
+        if (typeof value === 'number') {
+            n = value;
+        } else if (typeof value === 'string' && /^-?\d+$/.test(value.trim())) {
+            n = Number(value);
+        } else {
+            return null;
         }
-        if (typeof value === 'string' && /^-?\d+$/.test(value.trim())) {
-            return Number(value);
+        if (!Number.isFinite(n)) {
+            return null;
         }
-        return null;
+        n = Math.trunc(n);
+        // 2**63 itself is one past the bigint maximum; -(2**63) is the minimum.
+        if (n >= 2 ** 63 || n < -(2 ** 63)) {
+            return null;
+        }
+        return n;
     }
 
     private static asBoolean(value: unknown): boolean | null {
