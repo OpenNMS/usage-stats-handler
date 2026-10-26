@@ -1,11 +1,11 @@
-FROM node:alpine
+FROM docker.io/library/node:26-alpine
 
 RUN mkdir /app
 WORKDIR /app
 
-COPY package.json /app
+COPY package.json package-lock.json /app/
 
-RUN npm install
+RUN npm ci
 
 COPY . /app
 

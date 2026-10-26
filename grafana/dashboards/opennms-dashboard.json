@@ -24,13 +24,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": null,
   "links": [],
   "panels": [
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -82,9 +82,9 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "count"
+            "lastNotNull"
           ],
-          "fields": "/^Unique Count$/",
+          "fields": "",
           "values": false
         },
         "showPercentChange": false,
@@ -92,36 +92,18 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "1",
-                "size": "100000"
-              },
-              "type": "terms"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "settings": {},
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers",
-          "queryType": "randomWalk",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT count(DISTINCT system_id) AS \"Unique Count\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})"
         }
       ],
       "title": "Total Unique Installs Reporting of version \"$vers\"",
@@ -129,8 +111,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -223,36 +205,18 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": "0",
-                "timeZone": "utc",
-                "trimEdges": "0"
-              },
-              "type": "date_histogram"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "settings": {},
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers",
-          "queryType": "randomWalk",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroupAlias(received_at, $__interval, 0),\n       count(DISTINCT system_id) AS \"Unique Installs\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\nGROUP BY 1\nORDER BY 1"
         }
       ],
       "title": "Unique Installs Reporting of version \"$vers\"",
@@ -260,8 +224,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -313,9 +277,9 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
-          "fields": "/^nodes$/",
+          "fields": "",
           "values": false
         },
         "showPercentChange": false,
@@ -323,45 +287,18 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "10000"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "nodes",
-              "id": "3",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "1"
-              },
-              "type": "terms"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"nodes\"\nFROM (\n  SELECT system_id, max(nodes) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND nodes IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Monitored Nodes",
@@ -369,8 +306,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -422,9 +359,9 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
-          "fields": "/^ipInterfaces$/",
+          "fields": "",
           "values": false
         },
         "showPercentChange": false,
@@ -432,45 +369,18 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "100000"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "ipInterfaces",
-              "id": "3",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "1"
-              },
-              "type": "terms"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"ipInterfaces\"\nFROM (\n  SELECT system_id, max(ip_interfaces) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND ip_interfaces IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Monitored IP Interfaces",
@@ -478,8 +388,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -531,9 +441,9 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
-          "fields": "/^monitoredServices$/",
+          "fields": "",
           "values": false
         },
         "showPercentChange": false,
@@ -541,45 +451,18 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "100000"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "monitoredServices",
-              "id": "3",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "1"
-              },
-              "type": "terms"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"monitoredServices\"\nFROM (\n  SELECT system_id, max(monitored_services) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND monitored_services IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Monitored Services",
@@ -587,8 +470,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -640,9 +523,9 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
-          "fields": "/^snmpInterfaces$/",
+          "fields": "",
           "values": false
         },
         "showPercentChange": false,
@@ -650,45 +533,18 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "100000"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "snmpInterfaces",
-              "id": "3",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "1"
-              },
-              "type": "terms"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"snmpInterfaces\"\nFROM (\n  SELECT system_id, max(snmp_interfaces) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND snmp_interfaces IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Monitored Ports",
@@ -696,8 +552,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -749,9 +605,9 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
-          "fields": "/^AllNodesWithDeviceConfigBySysOid\\.value$/",
+          "fields": "",
           "values": false
         },
         "showPercentChange": false,
@@ -759,49 +615,18 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "10000"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "AllNodesWithDeviceConfigBySysOid.value",
-              "id": "3",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "1"
-              },
-              "type": "terms"
-            }
-          ],
           "datasource": {
-            "type": "elasticsearch",
-            "uid": "A_rHqHinz"
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
           },
-          "hide": false,
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers AND _exists_:AllNodesWithDeviceConfigBySysOid.value",
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"nodesWithDeviceConfig\"\nFROM (\n  SELECT system_id, max(nodes_with_device_config) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND nodes_with_device_config IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Nodes with Device Backup",
@@ -809,8 +634,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -862,9 +687,9 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
-          "fields": "/^snmpInterfacesWithFlows$/",
+          "fields": "",
           "values": false
         },
         "showPercentChange": false,
@@ -872,45 +697,18 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "10000"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "snmpInterfacesWithFlows",
-              "id": "3",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "1"
-              },
-              "type": "terms"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers AND _exists_:snmpInterfacesWithFlows",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"snmpInterfacesWithFlows\"\nFROM (\n  SELECT system_id, max(snmp_interfaces_with_flows) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND snmp_interfaces_with_flows IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Interfaces with Flows",
@@ -918,8 +716,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -971,9 +769,9 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
-          "fields": "/^coreFlowsPersisted$/",
+          "fields": "",
           "values": false
         },
         "showPercentChange": false,
@@ -981,45 +779,18 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "10000"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "coreFlowsPersisted",
-              "id": "3",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "1"
-              },
-              "type": "terms"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers AND _exists_:coreFlowsPersisted",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"coreFlowsPersisted\"\nFROM (\n  SELECT system_id, max(core_flows_persisted) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND core_flows_persisted IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Core Flows Persisted",
@@ -1027,8 +798,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -1080,9 +851,9 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
-          "fields": "/^Total$/",
+          "fields": "",
           "values": false
         },
         "showPercentChange": false,
@@ -1090,159 +861,27 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "100000"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "coreNewtsSamplesInserted",
-              "id": "3",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "1"
-              },
-              "type": "terms"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers and _exists_:coreNewtsSamplesInserted",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
-        },
-        {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "100000"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "coreQueuedUpdatesCompleted",
-              "id": "3",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "1"
-              },
-              "type": "terms"
-            }
-          ],
-          "datasource": {
-            "type": "elasticsearch",
-            "uid": "A_rHqHinz"
-          },
-          "dsType": "elasticsearch",
-          "hide": false,
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers AND _exists_:coreQueuedUpdatesCompleted",
-          "refId": "B",
-          "timeField": "@timestamp"
-        },
-        {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "100000"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "coreQueuedUpdatesCompleted",
-              "id": "3",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "1"
-              },
-              "type": "terms"
-            }
-          ],
-          "datasource": {
-            "type": "elasticsearch",
-            "uid": "A_rHqHinz"
-          },
-          "dsType": "elasticsearch",
-          "hide": false,
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers AND _exists_:coreTssWritesCompleted",
-          "refId": "C",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(sum(newts), 0) + coalesce(sum(queued), 0) + coalesce(sum(tss), 0) AS \"Total\"\nFROM (\n  SELECT system_id,\n         max(core_newts_samples_inserted)   AS newts,\n         max(core_queued_updates_completed) AS queued,\n         max(core_tss_writes_completed)     AS tss\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Time Series Metrics Persisted",
-      "transformations": [
-        {
-          "id": "merge",
-          "options": {}
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "mode": "reduceRow",
-            "reduce": {
-              "include": [
-                "coreQueuedUpdatesCompleted",
-                "coreNewtsSamplesInserted"
-              ],
-              "reducer": "sum"
-            }
-          }
-        }
-      ],
       "type": "stat"
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -1284,9 +923,9 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
-          "fields": "/^minions$/",
+          "fields": "",
           "values": false
         },
         "showPercentChange": false,
@@ -1294,45 +933,18 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "systemId",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "10000"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "minions",
-              "id": "3",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_term",
-                "size": "1"
-              },
-              "type": "terms"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers AND _exists_:minions",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"minions\"\nFROM (\n  SELECT system_id, max(minions) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND minions IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Configured Minions",
@@ -1340,8 +952,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -1368,32 +980,7 @@
           },
           "unit": "short"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "version"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Installed Version"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Unique Count"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Reporting Count"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -1420,33 +1007,18 @@
           }
         ]
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "version",
-              "id": "2",
-              "settings": {
-                "order": "desc",
-                "orderBy": "1",
-                "size": "0"
-              },
-              "type": "terms"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers ",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT version AS \"Installed Version\",\n       count(DISTINCT system_id) AS \"Reporting Count\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\nGROUP BY version\nORDER BY 2 DESC"
         }
       ],
       "title": "OpenNMS Versions",
@@ -1454,8 +1026,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -1482,32 +1054,7 @@
           },
           "unit": "short"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "osVersion"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Kernel Version"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Unique Count"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Reporting Count"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -1528,33 +1075,18 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "osVersion",
-              "id": "2",
-              "settings": {
-                "order": "desc",
-                "orderBy": "1",
-                "size": "10000"
-              },
-              "type": "terms"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "systemId",
-              "id": "1",
-              "type": "cardinality"
-            }
-          ],
-          "query": "$vers",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT os_version AS \"Kernel Version\",\n       count(DISTINCT system_id) AS \"Reporting Count\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n  AND os_version IS NOT NULL\nGROUP BY os_version\nORDER BY 2 DESC"
         }
       ],
       "title": "OS Versions",
@@ -1562,8 +1094,8 @@
     },
     {
       "datasource": {
-        "type": "elasticsearch",
-        "uid": "A_rHqHinz"
+        "type": "grafana-postgresql-datasource",
+        "uid": "usagestats-postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -1644,32 +1176,18 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.14+security-04",
       "targets": [
         {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": 0
-              },
-              "type": "date_histogram"
-            }
-          ],
-          "dsType": "elasticsearch",
-          "metrics": [
-            {
-              "field": "select field",
-              "id": "1",
-              "type": "count"
-            }
-          ],
-          "query": "$vers",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "usagestats-postgres"
+          },
           "refId": "A",
-          "timeField": "@timestamp"
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroupAlias(received_at, $__interval, 0),\n       count(*) AS \"Reports\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\nGROUP BY 1\nORDER BY 1"
         }
       ],
       "title": "API Hits From version \"$vers\"",
@@ -1683,25 +1201,27 @@
   "templating": {
     "list": [
       {
-        "allValue": "_exists_:version",
+        "name": "vers",
+        "label": "Version",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "usagestats-postgres"
+        },
+        "definition": "SELECT DISTINCT version FROM usage_report WHERE $__timeFilter(received_at) AND version IS NOT NULL ORDER BY 1",
+        "query": "SELECT DISTINCT version FROM usage_report WHERE $__timeFilter(received_at) AND version IS NOT NULL ORDER BY 1",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 4,
+        "regex": "",
+        "options": [],
         "current": {
           "text": "All",
           "value": [
             "$__all"
           ]
-        },
-        "definition": "{\"find\": \"terms\", \"field\": \"version\"}",
-        "description": "",
-        "includeAll": true,
-        "label": "Version",
-        "multi": true,
-        "name": "vers",
-        "options": [],
-        "query": "{\"find\": \"terms\", \"field\": \"version\"}",
-        "refresh": 2,
-        "regex": "",
-        "sort": 4,
-        "type": "query"
+        }
       }
     ]
   },
@@ -1711,7 +1231,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "OpenNMS Usage Report NEW",
-  "uid": "Q0oMJHmnk",
-  "version": 28
+  "title": "OpenNMS Usage Report",
+  "uid": "opennms-usage-report",
+  "version": 1
 }

@@ -7,12 +7,14 @@
     "axios": "^1.6.5",
     "axios-retry": "^4.0.0",
     "config": "^3.3.10",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "pg": "^8.23.1"
   },
   "devDependencies": {
     "@types/config": "^3.3.3",
     "@types/express": "^5.0.0",
-    "@types/node": "^16.7.10",
+    "@types/node": "^26.6.5",
+    "@types/pg": "^8.23.1",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.8.0",
     "eslint": "^9.12.0",
@@ -23,8 +25,12 @@
     "start": "tsc -p . && node dist/app.js",
     "start:prod": "tsc -p . && export NODE_ENV=production && node dist/app.js",
     "test": "tsc --noEmit --strict -p .",
-    "test:lint": "tsc --noEmit --strict -p . && eslint ."
+    "test:lint": "tsc --noEmit --strict -p . && eslint .",
+    "import:elasticsearch": "tsc -p . && node dist/scripts/import-from-elasticsearch.js"
   },
   "author": "Jesse White <jesse@opennms.org>",
-  "license": "APL 2.0"
+  "license": "APL 2.0",
+  "engines": {
+    "node": ">=26"
+  }
 }

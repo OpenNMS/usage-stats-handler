@@ -11,40 +11,35 @@ services:
     ports:
       - "3542:3542"
     environment:
-      - ELASTIC_BASE_URL=http://elasticsearch:9200
+      - DATABASE_URL=postgres://usagestats:usagestats@postgres:5432/usagestats
     restart: on-failure
     depends_on:
-      - elasticsearch
+      postgres:
+        condition: service_healthy
     networks:
       stats_network:
-  elasticsearch:
-    container_name: elasticsearch
-    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.13.3'
+  postgres:
+    container_name: postgres
+    image: 'docker.io/library/postgres:16-alpine'
     ports:
-      - "9200:9200"
+      - "5432:5432"
     environment:
-      - xpack.security.enabled=false
-      - xpack.security.http.ssl.enabled=false
-      - xpack.security.transport.ssl.enabled=false
-      - bootstrap.system_call_filter=false
-      - discovery.type=single-node
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    cap_add:
-      - IPC_LOCK
+      - POSTGRES_USER=usagestats
+      - POSTGRES_PASSWORD=usagestats
+      - POSTGRES_DB=usagestats
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usagestats -d usagestats"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
+      - postgres-data:/var/lib/postgresql/data
     restart: on-failure
     networks:
       stats_network:
   grafana:
     container_name: grafana
-    image: 'grafana/grafana:8.5.3'
+    image: 'docker.io/grafana/grafana:12.0.2'
     volumes:
       - ./grafana/grafana.ini:/etc/grafana/grafana.ini:ro
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
@@ -52,11 +47,12 @@ services:
     ports:
       - "3001:3000"
     depends_on:
-      - elasticsearch
+      postgres:
+        condition: service_healthy
     restart: on-failure
     networks:
       stats_network:
 
 volumes:
-  elasticsearch-data:
+  postgres-data:
     driver: local
