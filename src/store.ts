@@ -1,4 +1,5 @@
-import { Pool, PoolClient } from 'pg';
+import { Pool } from 'pg';
+import type { PoolClient } from 'pg';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -60,6 +61,16 @@ export interface SavedReport {
     id: number;
     systemId: string;
     receivedAt: Date;
+}
+
+export interface SaveOptions {
+    /** When the report arrived. Defaults to now. The Elasticsearch import passes the original timestamp. */
+    receivedAt?: Date;
+    /**
+     * Identity of the source document for imported reports ("<index>/<_id>").
+     * A report whose importId is already present is not inserted again.
+     */
+    importId?: string;
 }
 
 export class Store {
@@ -125,11 +136,13 @@ export class Store {
      * Persists one usage report: inserts the usage_report row, the
      * per-sysObjectID counts, and creates or updates the system row.
      *
-     * @param report     the payload as POSTed
-     * @param receivedAt when the report arrived; defaults to now. The
-     *                   Elasticsearch import passes the original timestamp.
+     * Returns null only when options.importId is given and a row with that
+     * importId already exists; nothing is written in that case.
+     *
+     * @param report  the payload as POSTed
      */
-    public async saveReport(report: unknown, receivedAt?: Date): Promise<SavedReport> {
+    public async saveReport(report: unknown, options: SaveOptions = {}): Promise<SavedReport | null> {
+        const { receivedAt, importId } = options;
         const systemId = Store.systemIdOf(report);
         const payload = Store.sanitize(report) as Record<string, unknown>;
 
@@ -144,6 +157,9 @@ export class Store {
 
         if (receivedAt) {
             add('received_at', receivedAt);
+        }
+        if (importId) {
+            add('import_id', importId);
         }
         for (const [key, column] of Object.entries(TEXT_COLUMNS)) {
             add(column, Store.asText(payload[key]));
@@ -168,11 +184,17 @@ export class Store {
         const client = await this.pool.connect();
         try {
             await client.query('BEGIN');
+            const onConflict = importId ? 'ON CONFLICT (import_id) WHERE import_id IS NOT NULL DO NOTHING' : '';
             const inserted = await client.query<{ id: string; received_at: Date }>(
                 `INSERT INTO usage_report (${columns.join(', ')}) VALUES (${placeholders.join(', ')})
+                 ${onConflict}
                  RETURNING id, received_at`,
                 values
             );
+            if (inserted.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return null;
+            }
             const id = Number(inserted.rows[0].id);
             const storedAt = inserted.rows[0].received_at;
 
@@ -194,6 +216,19 @@ export class Store {
         } finally {
             client.release();
         }
+    }
+
+    /**
+     * The received_at of the newest imported report whose importId starts
+     * with the given prefix, or null when none has been imported. Used by
+     * the Elasticsearch import to resume where an earlier run stopped.
+     */
+    public async latestImportedAt(importIdPrefix: string): Promise<Date | null> {
+        const result = await this.pool.query<{ latest: Date | null }>(
+            `SELECT max(received_at) AS latest FROM usage_report WHERE import_id LIKE $1 || '%'`,
+            [importIdPrefix.replace(/[\\%_]/g, '\\$&')]
+        );
+        return result.rows[0]?.latest ?? null;
     }
 
     public async close(): Promise<void> {

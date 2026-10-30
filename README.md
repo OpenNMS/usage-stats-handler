@@ -89,12 +89,25 @@ The previous version of this service wrote to Elasticsearch. A one-off import of
 ```shell
 export ELASTIC_BASE_URL=http://elasticsearch:9200
 export DATABASE_URL=postgres://usagestats:usagestats@localhost:5432/usagestats
-npm run import:elasticsearch
+npm run import:elasticsearch -- opennms_log
 ```
+
+The argument is the index (or alias) to read; it defaults to `opennms_log` when
+omitted. The script compiles the project and runs the compiled JavaScript from
+`dist`. Do not run the `.ts` source with `node` directly: the project is built as
+CommonJS and Node's own type stripping loads it as an ES module, which fails on the
+relative imports and type-only imports.
 
 It reverses the field mapping workaround the old handler applied, keeps each
 document's original `@timestamp` as `received_at`, and rebuilds the `system` table.
-Run it once against an empty database; re-running it inserts duplicates.
+
+The import can be re-run or resumed safely. Each imported row records its source
+document as `<index>/<_id>` in `usage_report.import_id`, documents already present
+are skipped, and a run starts from the newest timestamp already imported for the
+index. Throttled (429) and transient Elasticsearch errors are retried with backoff;
+if the scroll is lost anyway the search is reopened from the last imported
+timestamp. If Elasticsearch keeps throttling, slow the import down with
+`IMPORT_PAGE_SIZE` (default 500) and `IMPORT_PAGE_DELAY_MS` (default 0).
 
 ## Running in the production environment
 

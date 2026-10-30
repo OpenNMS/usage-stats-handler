@@ -23,6 +23,10 @@ app.post("/usage-report", async (req, res) => {
     console.log("Report opennms received: ", report);
     try {
         const saved = await store.saveReport(report);
+        if (saved === null) {
+            // Only possible for imports with an importId; not this path.
+            throw new Error('Report was not stored');
+        }
         console.log(`Saved usage report ${saved.id} for system ${saved.systemId}`);
         res.writeHead(200, headers);
         res.end();

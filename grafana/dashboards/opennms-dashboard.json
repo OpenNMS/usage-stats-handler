@@ -103,7 +103,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT count(DISTINCT system_id) AS \"Unique Count\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})"
+          "rawSql": "SELECT count(DISTINCT system_id) AS \"Unique Count\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'"
         }
       ],
       "title": "Total Unique Installs Reporting of version \"$vers\"",
@@ -216,7 +216,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT $__timeGroupAlias(received_at, $__interval, 0),\n       count(DISTINCT system_id) AS \"Unique Installs\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\nGROUP BY 1\nORDER BY 1"
+          "rawSql": "SELECT $__timeGroupAlias(received_at, $__interval, 0),\n       count(DISTINCT system_id) AS \"Unique Installs\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\nGROUP BY 1\nORDER BY 1"
         }
       ],
       "title": "Unique Installs Reporting of version \"$vers\"",
@@ -298,7 +298,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT coalesce(sum(m), 0) AS \"nodes\"\nFROM (\n  SELECT system_id, max(nodes) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND nodes IS NOT NULL\n  GROUP BY system_id\n) s"
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"nodes\"\nFROM (\n  SELECT system_id, max(nodes) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\n    AND nodes IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Monitored Nodes",
@@ -380,7 +380,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT coalesce(sum(m), 0) AS \"ipInterfaces\"\nFROM (\n  SELECT system_id, max(ip_interfaces) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND ip_interfaces IS NOT NULL\n  GROUP BY system_id\n) s"
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"ipInterfaces\"\nFROM (\n  SELECT system_id, max(ip_interfaces) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\n    AND ip_interfaces IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Monitored IP Interfaces",
@@ -462,7 +462,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT coalesce(sum(m), 0) AS \"monitoredServices\"\nFROM (\n  SELECT system_id, max(monitored_services) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND monitored_services IS NOT NULL\n  GROUP BY system_id\n) s"
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"monitoredServices\"\nFROM (\n  SELECT system_id, max(monitored_services) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\n    AND monitored_services IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Monitored Services",
@@ -544,7 +544,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT coalesce(sum(m), 0) AS \"snmpInterfaces\"\nFROM (\n  SELECT system_id, max(snmp_interfaces) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND snmp_interfaces IS NOT NULL\n  GROUP BY system_id\n) s"
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"snmpInterfaces\"\nFROM (\n  SELECT system_id, max(snmp_interfaces) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\n    AND snmp_interfaces IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Monitored Ports",
@@ -626,7 +626,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT coalesce(sum(m), 0) AS \"nodesWithDeviceConfig\"\nFROM (\n  SELECT system_id, max(nodes_with_device_config) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND nodes_with_device_config IS NOT NULL\n  GROUP BY system_id\n) s"
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"nodesWithDeviceConfig\"\nFROM (\n  SELECT system_id, max(nodes_with_device_config) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\n    AND nodes_with_device_config IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Nodes with Device Backup",
@@ -708,7 +708,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT coalesce(sum(m), 0) AS \"snmpInterfacesWithFlows\"\nFROM (\n  SELECT system_id, max(snmp_interfaces_with_flows) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND snmp_interfaces_with_flows IS NOT NULL\n  GROUP BY system_id\n) s"
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"snmpInterfacesWithFlows\"\nFROM (\n  SELECT system_id, max(snmp_interfaces_with_flows) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\n    AND snmp_interfaces_with_flows IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Interfaces with Flows",
@@ -790,7 +790,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT coalesce(sum(m), 0) AS \"coreFlowsPersisted\"\nFROM (\n  SELECT system_id, max(core_flows_persisted) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND core_flows_persisted IS NOT NULL\n  GROUP BY system_id\n) s"
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"coreFlowsPersisted\"\nFROM (\n  SELECT system_id, max(core_flows_persisted) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\n    AND core_flows_persisted IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Core Flows Persisted",
@@ -872,7 +872,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT coalesce(sum(newts), 0) + coalesce(sum(queued), 0) + coalesce(sum(tss), 0) AS \"Total\"\nFROM (\n  SELECT system_id,\n         max(core_newts_samples_inserted)   AS newts,\n         max(core_queued_updates_completed) AS queued,\n         max(core_tss_writes_completed)     AS tss\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n  GROUP BY system_id\n) s"
+          "rawSql": "SELECT coalesce(sum(newts), 0) + coalesce(sum(queued), 0) + coalesce(sum(tss), 0) AS \"Total\"\nFROM (\n  SELECT system_id,\n         max(core_newts_samples_inserted)   AS newts,\n         max(core_queued_updates_completed) AS queued,\n         max(core_tss_writes_completed)     AS tss\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Time Series Metrics Persisted",
@@ -944,7 +944,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT coalesce(sum(m), 0) AS \"minions\"\nFROM (\n  SELECT system_id, max(minions) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n    AND minions IS NOT NULL\n  GROUP BY system_id\n) s"
+          "rawSql": "SELECT coalesce(sum(m), 0) AS \"minions\"\nFROM (\n  SELECT system_id, max(minions) AS m\n  FROM usage_report\n  WHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\n    AND minions IS NOT NULL\n  GROUP BY system_id\n) s"
         }
       ],
       "title": "Configured Minions",
@@ -1018,7 +1018,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT version AS \"Installed Version\",\n       count(DISTINCT system_id) AS \"Reporting Count\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\nGROUP BY version\nORDER BY 2 DESC"
+          "rawSql": "SELECT version AS \"Installed Version\",\n       count(DISTINCT system_id) AS \"Reporting Count\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\nGROUP BY version\nORDER BY 2 DESC"
         }
       ],
       "title": "OpenNMS Versions",
@@ -1086,7 +1086,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT os_version AS \"Kernel Version\",\n       count(DISTINCT system_id) AS \"Reporting Count\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\n  AND os_version IS NOT NULL\nGROUP BY os_version\nORDER BY 2 DESC"
+          "rawSql": "SELECT os_version AS \"Kernel Version\",\n       count(DISTINCT system_id) AS \"Reporting Count\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\n  AND os_version IS NOT NULL\nGROUP BY os_version\nORDER BY 2 DESC"
         }
       ],
       "title": "OS Versions",
@@ -1187,7 +1187,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT $__timeGroupAlias(received_at, $__interval, 0),\n       count(*) AS \"Reports\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version IN (${vers:sqlstring})\nGROUP BY 1\nORDER BY 1"
+          "rawSql": "SELECT $__timeGroupAlias(received_at, $__interval, 0),\n       count(*) AS \"Reports\"\nFROM usage_report\nWHERE $__timeFilter(received_at) AND version ~ '^(${vers:regex})$'\nGROUP BY 1\nORDER BY 1"
         }
       ],
       "title": "API Hits From version \"$vers\"",
@@ -1208,10 +1208,11 @@
           "type": "grafana-postgresql-datasource",
           "uid": "usagestats-postgres"
         },
-        "definition": "SELECT DISTINCT version FROM usage_report WHERE $__timeFilter(received_at) AND version IS NOT NULL ORDER BY 1",
-        "query": "SELECT DISTINCT version FROM usage_report WHERE $__timeFilter(received_at) AND version IS NOT NULL ORDER BY 1",
-        "refresh": 2,
+        "definition": "SELECT DISTINCT version FROM usage_report WHERE version IS NOT NULL ORDER BY 1",
+        "query": "SELECT DISTINCT version FROM usage_report WHERE version IS NOT NULL ORDER BY 1",
+        "refresh": 1,
         "includeAll": true,
+        "allValue": ".*",
         "multi": true,
         "sort": 4,
         "regex": "",
